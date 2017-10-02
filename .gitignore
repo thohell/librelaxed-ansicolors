@@ -1,0 +1,6 @@
+.vscode
+lib
+node_modules
+npm-debug.log
+coverage
+package-lock.json

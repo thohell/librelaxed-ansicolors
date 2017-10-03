@@ -1,19 +1,19 @@
 # Copyright (C) 2017 Thomas Hellström <rel@xed.se>
 #
-# This file is part of %PROJECT%.
+# This file is part of librelaxed-ansicolors.
 #
-# %PROJECT% is free software: you can redistribute it and/or modify
+# librelaxed-ansicolors is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# %PROJECT% is distributed in the hope that it will be useful,
+# librelaxed-ansicolors is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with %PROJECT%.  If not, see <http://www.gnu.org/licenses/>.
+# along with librelaxed-ansicolors.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # =====================================================================================================================
@@ -36,7 +36,7 @@ ISTANBUL       ?= ./node_modules/.bin/istanbul
 
 # Programs - Typescript compiler
 TSC            ?= ./node_modules/.bin/tsc
-TSCFLAGS       ?= --target es6 --lib es6 --module commonjs --pretty --moduleResolution node
+TSCFLAGS       ?= --target es6 --lib es6 --module commonjs --pretty --moduleResolution node --removeComments
 #TSCFLAGS       += --listfiles --listEmittedFiles
 
 #
@@ -66,12 +66,11 @@ APP_TYPINGS := $(DIST)/typings.d.ts
 # ---------------------------------------------------------------------------------------------------------------------
 # Compile app files
 .PHONY: build
-build: $(APP_JS)
-$(DIST)/$(APP_SRC)/%.d.ts $(DIST)/$(APP_SRC)/%.js $(DIST)/$(APP_SRC)/%.js.map: $(APP_SRC)/%.ts
+build: $(APP_JS) $(APP_D_TS)
+$(DIST)/$(APP_SRC)/%.d.ts $(DIST)/$(APP_SRC)/%.js: $(APP_SRC)/%.ts
 	@echo "[+] Compiling app file : '$<'"
 	@touch .basedir.ts
 	@$(TSC) $(TSCFLAGS) --declaration .basedir.ts --outdir $(DIST) $<
-	@tools/@remove-reference-path.sh $< $(patsubst $(APP_SRC)%.ts, $(DIST)/$(APP_SRC)%.d.ts, $<)
 	@rm -f .basedir.ts $(DIST)/.basedir.*
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -81,13 +80,6 @@ build-clean:
 	@rm -rfv "$(DIST)"
 
 
-# ---------------------------------------------------------------------------------------------------------------------
-# Compile typings
-.phony: typings
-typings: $(APP_TYPINGS)
-$(APP_TYPINGS): $(APP_D_TS)
-	@echo "[+] Generating typings: '$@'"
-	@cat $(APP_D_TS) > $@
 
 
 # =====================================================================================================================
@@ -107,7 +99,7 @@ $(DIST)/$(TEST_SRC)/%.js: $(TEST_SRC)/%.ts
 # ---------------------------------------------------------------------------------------------------------------------
 # Run tests
 .PHONY: test
-test: $(TEST_JS) $(APP_JS)
+test: $(TEST_JS) build
 	@$(MOCHA) $(MOCHAFLAGS) $(TEST_JS) $(MOCHA_COLORFIX)
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -154,6 +146,7 @@ clean:
 	@$(MAKE) coverage-clean
 	@$(MAKE) test-clean
 	@$(MAKE) build-clean
+	@rm -f *.log
 
 .PHONY: distclean
 distclean: Makefile

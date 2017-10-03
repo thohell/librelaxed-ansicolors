@@ -27,7 +27,8 @@
         "no-empty": false,
         "max-line-length": false,
         "no-shadowed-variable": false,
-        "forin": false
+        "forin": false,
+        "no-eval": false
     },
     "rulesDirectory": []
 }

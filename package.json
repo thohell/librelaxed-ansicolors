@@ -27,7 +27,7 @@
     "typescript": "^2.3.0"
   },
   "dependencies": {
-    "npm": "^5.4.2"
+    "npm": "^6.14.8"
   },
   "nodemonConfig": {
     "verbose": true,
